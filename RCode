@@ -1,0 +1,23 @@
+library(caret)
+library(e1071)
+
+#I've use a csv I created from data on Baseball Savant of the 2018 regular and post season. I have it called hitdata here, with all balls
+# put into play, except for bunts
+
+#This part is copied from the FanGraphs article posted in my reference section on the article
+inTrain <- createDataPartition(hitdata$events, p=0.75, list=FALSE)
+training <- hitdata[inTrain, ]
+testing <- hitdata[-inTrain, ]
+
+#Start of the SVM algorithm and model
+modelsvm <- svm(events~., data = training)
+predictedsvm <- predict(modelsvm, newdata = testing)
+
+#Start of the Random Forest algorithm and model. This is also copied from the FanGraphs article
+ctrl <- trainControl(method = 'repeatedcv', number = 5, repeats = 5)
+modelFit <- train(events~., method = 'rf', data=training, trControl = ctrl)
+predictedrf <- predict(modelFit, newdata=testing)
+
+#Start of the Bayes algorithm and model
+modelBayes <- naiveBayes(events ~., data = training)
+predictedBayes <- predict(modelBayes, newdata = testing)
